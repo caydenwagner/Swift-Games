@@ -4,7 +4,7 @@ import SwiftUI
 struct SetModel {
     private(set) var displayCards: [Card]
     private var deck: [Card]
-    private var numberOfDisplayCards: Int
+    private(set) var numberOfDisplayCards: Int
     
     init(theme: Theme = .original, numberOfDisplayCards: Int = 12) {
         deck = []
@@ -86,6 +86,35 @@ struct SetModel {
                (numberOfShapes.count == 1 || numberOfShapes.count == 3)
     }
     
+    mutating func highlightAvailableMatches() {
+        for i in 0..<displayCards.count {
+            for j in (i + 1)..<displayCards.count {
+                for k in (j + 1)..<displayCards.count {
+                    let potentialSet = [displayCards[i], displayCards[j], displayCards[k]]
+                    if isValidSet(potentialSet) {
+                        displayCards[i].isPartOfMatch = true
+                        displayCards[j].isPartOfMatch = true
+                        displayCards[k].isPartOfMatch = true
+                    }
+                }
+            }
+        }
+    }
+    
+    func hasAvailableMatches() -> Bool {
+        for i in 0..<displayCards.count {
+            for j in (i + 1)..<displayCards.count {
+                for k in (j + 1)..<displayCards.count {
+                    let potentialSet = [displayCards[i], displayCards[j], displayCards[k]]
+                    if isValidSet(potentialSet) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+    
     struct Card: Equatable, Identifiable {
         static func == (lhs: SetModel.Card, rhs: SetModel.Card) -> Bool {
             return lhs.id == rhs.id
@@ -93,6 +122,7 @@ struct SetModel {
         
         var isSelected = false
         var isMatched = false
+        var isPartOfMatch = false
         let content: Shape
         let numberOfShapes: Int
         

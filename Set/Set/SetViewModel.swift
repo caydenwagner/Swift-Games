@@ -27,4 +27,16 @@ class SetViewModel: ObservableObject {
     func select(_ card: SetModel.Card) {
         model.select(card)
     }
+    
+    func checkForMatches() {
+        model.highlightAvailableMatches()
+    }
+    
+    func startNewGame() {
+        model = SetViewModel.createSetGame()
+    }
+    
+    var hasAvailableMatches: Bool {
+        return model.hasAvailableMatches()
+    }
 }
