@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SetView: View {
     @ObservedObject var viewModel: SetViewModel
-    private let aspectRatio: CGFloat = 2/3
+    private let aspectRatio: CGFloat = 6/4
     
     var body: some View {
         VStack {
@@ -22,15 +22,14 @@ struct SetView: View {
     private var cards: some View {
         AspectVGrid(viewModel.cards, aspectRatio: aspectRatio) { card in
             CardView(card: card)
-                .padding(2)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .strokeBorder(card.isSelected ? Color.red : Color.black, lineWidth: card.isSelected ? 4 : 2)
-                        .padding(4)
                 )
                 .onTapGesture {
                     viewModel.select(card)
                 }
+            .padding(5)
         }
     }
     
@@ -44,7 +43,8 @@ struct SetView: View {
                 base
                     .foregroundColor(.white)
                 
-                ShapeBuilder(shape: card.content)
+                ShapeBuilder(shape: card.content, numberOfShapes: card.numberOfShapes)
+                    .padding(7)
             }
         }
     }

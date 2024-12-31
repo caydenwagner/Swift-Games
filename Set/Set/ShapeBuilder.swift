@@ -5,12 +5,35 @@
 //  Created by Cayden Wagner on 12/30/24.
 //
 
+//
+//  ShapeBuilder.swift
+//  Set
+//
+//  Created by Cayden Wagner on 12/30/24.
+//
+
 import SwiftUI
 
 struct ShapeBuilder: View {
     let shape: SetModel.Shape
+    let numberOfShapes: Int
     
     var body: some View {
+        GeometryReader { geometry in
+            VStack(spacing: 4) {
+                ForEach(0..<numberOfShapes, id: \.self) { _ in
+                    shapeView
+                        .frame(width: geometry.size.width * 0.55, height: geometry.size.height * 0.4)
+                        .padding(2)
+                }
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+        }
+        .rotationEffect(.degrees(90))
+    }
+    
+    private var shapeView: some View {
         Group {
             switch shape.shapeType {
             case .pill:
@@ -21,8 +44,6 @@ struct ShapeBuilder: View {
                 DiamondShape(color: shape.color, fillType: shape.fillType)
             }
         }
-        .aspectRatio(2, contentMode: .fit)
-        .rotationEffect(.degrees(90))
     }
 }
 
@@ -32,11 +53,10 @@ struct PillShape: View {
     
     var body: some View {
         Capsule()
-            .stroke(color, lineWidth: 4)
-            .fill(fillColor(for: fillType, color: color))
-            .overlay(
+            .stroke(color, lineWidth: 2)
+            .background(
                 Capsule()
-                    .fill(.white)
+                    .fill(fillColor(for: fillType, color: color))
                     .opacity(opacity(for: fillType))
             )
     }
@@ -55,11 +75,11 @@ struct PillShape: View {
     private func opacity(for fillType: SetModel.FillType) -> Double {
         switch fillType {
         case .solid:
-            return 0
+            return 1
         case .transparent:
             return 0.5
         case .open:
-            return 1
+            return 0
         }
     }
 }
@@ -70,11 +90,10 @@ struct SquigglyShape: View {
     
     var body: some View {
         SquigglyShapeView()
-            .stroke(color, lineWidth: 4)
-            .fill(fillColor(for: fillType, color: color))
-            .overlay(
+            .stroke(color, lineWidth: 2)
+            .background(
                 SquigglyShapeView()
-                    .fill(.white)
+                    .fill(fillColor(for: fillType, color: color))
                     .opacity(opacity(for: fillType))
             )
     }
@@ -93,11 +112,11 @@ struct SquigglyShape: View {
     private func opacity(for fillType: SetModel.FillType) -> Double {
         switch fillType {
         case .solid:
-            return 0
+            return 1
         case .transparent:
             return 0.5
         case .open:
-            return 1
+            return 0
         }
     }
 }
@@ -108,11 +127,10 @@ struct DiamondShape: View {
     
     var body: some View {
         DiamondShapeView()
-            .stroke(color, lineWidth: 4)
-            .fill(fillColor(for: fillType, color: color))
-            .overlay(
+            .stroke(color, lineWidth: 2)
+            .background(
                 DiamondShapeView()
-                    .fill(.white)
+                    .fill(fillColor(for: fillType, color: color))
                     .opacity(opacity(for: fillType))
             )
     }
@@ -131,11 +149,11 @@ struct DiamondShape: View {
     private func opacity(for fillType: SetModel.FillType) -> Double {
         switch fillType {
         case .solid:
-            return 0
+            return 1
         case .transparent:
             return 0.5
         case .open:
-            return 1
+            return 0
         }
     }
 }
@@ -147,35 +165,28 @@ struct SquigglyShapeView: Shape {
         let width = rect.width
         let height = rect.height
         
-        // Start at the top-left
         path.move(to: CGPoint(x: rect.minX, y: rect.midY))
         
-        // Top-left curve
         path.addCurve(to: CGPoint(x: rect.minX + width * 0.2, y: rect.minY),
                       control1: CGPoint(x: rect.minX, y: rect.minY + height * 0.2),
                       control2: CGPoint(x: rect.minX + width * 0.1, y: rect.minY))
         
-        // Top-right curve
         path.addCurve(to: CGPoint(x: rect.minX + width * 0.8, y: rect.minY),
                       control1: CGPoint(x: rect.minX + width * 0.5, y: rect.minY),
                       control2: CGPoint(x: rect.minX + width * 0.6, y: rect.minY + height * 0.35))
         
-        // Bottom-right curve
         path.addCurve(to: CGPoint(x: rect.maxX, y: rect.midY),
                       control1: CGPoint(x: rect.minX + width * 0.9, y: rect.minY),
                       control2: CGPoint(x: rect.maxX, y: rect.minY + height * 0.2))
         
-        // Bottom-left curve
         path.addCurve(to: CGPoint(x: rect.minX + width * 0.8, y: rect.maxY),
                       control1: CGPoint(x: rect.maxX, y: rect.maxY - height * 0.2),
                       control2: CGPoint(x: rect.minX + width * 0.9, y: rect.maxY))
         
-        // Bottom-left curve
         path.addCurve(to: CGPoint(x: rect.minX + width * 0.2, y: rect.maxY),
                       control1: CGPoint(x: rect.minX + width * 0.6, y: rect.maxY),
                       control2: CGPoint(x: rect.minX + width * 0.4, y: rect.maxY - height * 0.35))
         
-        // Close the path
         path.addCurve(to: CGPoint(x: rect.minX, y: rect.midY),
                       control1: CGPoint(x: rect.minX + width * 0.1, y: rect.maxY),
                       control2: CGPoint(x: rect.minX, y: rect.maxY - height * 0.2))
@@ -197,5 +208,5 @@ struct DiamondShapeView: Shape {
 }
 
 #Preview {
-    ShapeBuilder(shape: SetModel.Shape(shapeType: .squiggly, color: .red, fillType: .transparent))
+    ShapeBuilder(shape: SetModel.Shape(shapeType: .squiggly, color: .red, fillType: .transparent), numberOfShapes: 3)
 }
