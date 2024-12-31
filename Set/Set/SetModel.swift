@@ -1,10 +1,3 @@
-//
-//  SetModel.swift
-//  Set
-//
-//  Created by Cayden Wagner on 12/29/24.
-//
-
 import Foundation
 import SwiftUI
 
@@ -13,7 +6,7 @@ struct SetModel {
     private var deck: [Card]
     private var numberOfDisplayCards: Int
     
-    init(theme: Theme = .original, numberOfDisplayCards: Int = 25) {
+    init(theme: Theme = .original, numberOfDisplayCards: Int = 12) {
         deck = []
         displayCards = []
         self.numberOfDisplayCards = numberOfDisplayCards
@@ -21,9 +14,11 @@ struct SetModel {
         for shape in ShapeType.allCases {
             for fill in FillType.allCases {
                 for color in theme.colors {
-                    let shapeContent = Shape(shapeType: shape, color: color, fillType: fill)
-                    let card = Card(content: shapeContent)
-                    deck.append(card)
+                    for numberOfShapes in 1...3 {
+                        let shapeContent = Shape(shapeType: shape, color: color, fillType: fill)
+                        let card = Card(content: shapeContent, numberOfShapes: numberOfShapes)
+                        deck.append(card)
+                    }
                 }
             }
         }
@@ -46,11 +41,9 @@ struct SetModel {
     }
     
     mutating func checkMatch() {
-        print("2")
         let selectedCards = displayCards.filter { $0.isSelected }
         
         if isValidSet(selectedCards) {
-            print("3")
             for card in selectedCards {
                 if let index = displayCards.firstIndex(where: { $0.id == card.id }) {
                     displayCards[index].isMatched = true
@@ -61,7 +54,6 @@ struct SetModel {
             
             addNewCards()
         } else {
-            print("4")
             for card in selectedCards {
                 if let index = displayCards.firstIndex(where: { $0.id == card.id }) {
                     displayCards[index].isSelected = false
@@ -86,10 +78,12 @@ struct SetModel {
         let shapeTypes = Set(cards.map { $0.content.shapeType })
         let fillTypes = Set(cards.map { $0.content.fillType })
         let colors = Set(cards.map { $0.content.color })
+        let numberOfShapes = Set(cards.map { $0.numberOfShapes })
         
         return (shapeTypes.count == 1 || shapeTypes.count == 3) &&
                (fillTypes.count == 1 || fillTypes.count == 3) &&
-               (colors.count == 1 || colors.count == 3)
+               (colors.count == 1 || colors.count == 3) &&
+               (numberOfShapes.count == 1 || numberOfShapes.count == 3)
     }
     
     struct Card: Equatable, Identifiable {
@@ -100,6 +94,7 @@ struct SetModel {
         var isSelected = false
         var isMatched = false
         let content: Shape
+        let numberOfShapes: Int
         
         var id: UUID = UUID()
     }
@@ -131,13 +126,13 @@ struct SetModel {
         var colors: [Color] {
             switch self {
             case .halloween:
-                return [.orange, .black, .purple, .green, .red]
+                return [.orange, .black, .green]
             case .christmas:
-                return [.red, .green, .white, .black, .purple]
+                return [.red, .green, .black]
             case .original:
-                return [.red, .blue, .green, .yellow, .purple]
+                return [.red, .green, .purple]
             case .neon:
-                return [.cyan, .purple, .yellow, .teal, .pink]
+                return [.cyan, .yellow, .pink]
             }
         }
     }
