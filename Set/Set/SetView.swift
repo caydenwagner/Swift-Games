@@ -27,7 +27,7 @@ struct SetView: View {
             CardView(card: card)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(card.isSelected ? Color.red : (card.isPartOfMatch ? Color.yellow : Color.black), lineWidth: card.isSelected ? 4 : 2)
+                        .strokeBorder(card.isSelected ? Color.green : (card.isPartOfMatch ? Color.yellow : Color.black), lineWidth: card.isSelected ? 4 : 2)
                 )
                 .onTapGesture {
                     viewModel.select(card)

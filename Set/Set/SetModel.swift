@@ -63,6 +63,7 @@ struct SetModel {
     }
     
     private mutating func addNewCards() {
+        clearMatches()
         while displayCards.count < numberOfDisplayCards && !deck.isEmpty {
             if let newCard = deck.popLast() {
                 displayCards.append(newCard)
@@ -87,6 +88,7 @@ struct SetModel {
     }
     
     mutating func highlightAvailableMatches() {
+        clearMatches()
         for i in 0..<displayCards.count {
             for j in (i + 1)..<displayCards.count {
                 for k in (j + 1)..<displayCards.count {
@@ -95,9 +97,16 @@ struct SetModel {
                         displayCards[i].isPartOfMatch = true
                         displayCards[j].isPartOfMatch = true
                         displayCards[k].isPartOfMatch = true
+                        return
                     }
                 }
             }
+        }
+    }
+    
+    private mutating func clearMatches() {
+        for i in 0..<displayCards.count {
+            displayCards[i].isPartOfMatch = false
         }
     }
     
