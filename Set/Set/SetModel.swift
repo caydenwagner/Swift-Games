@@ -11,30 +11,85 @@ import SwiftUI
 struct SetModel {
     private(set) var displayCards: [Card]
     private var deck: [Card]
+    private var numberOfDisplayCards: Int
     
-    init(theme: Theme = .original, numCards: Int = 24) {
+    init(theme: Theme = .original, numberOfDisplayCards: Int = 25) {
         deck = []
         displayCards = []
+        self.numberOfDisplayCards = numberOfDisplayCards
         
         for shape in ShapeType.allCases {
             for fill in FillType.allCases {
                 for color in theme.colors {
-                    for numberOfShapes in 1...3 {
-                        let shapeContent = Shape(shapeType: shape, color: color, fillType: fill)
-                        let card = Card(content: shapeContent, numberOfShapes: numberOfShapes)
-                        deck.append(card)
-                    }
+                    let shapeContent = Shape(shapeType: shape, color: color, fillType: fill)
+                    let card = Card(content: shapeContent)
+                    deck.append(card)
                 }
             }
         }
         
         deck.shuffle()
         
-        for _ in 0..<min(numCards, deck.count) {
-            if let card = deck.popLast() {
-                displayCards.append(card)
+        displayCards = Array(deck.prefix(numberOfDisplayCards))
+        deck.removeFirst(displayCards.count)
+    }
+    
+    mutating func select(_ card: Card) {
+        if let chosenIndex = displayCards.firstIndex(where: { $0.id == card.id }) {
+            displayCards[chosenIndex].isSelected.toggle()
+            
+            let selectedCards = displayCards.filter { $0.isSelected }
+            if selectedCards.count == 3 {
+                checkMatch()
             }
         }
+    }
+    
+    mutating func checkMatch() {
+        print("2")
+        let selectedCards = displayCards.filter { $0.isSelected }
+        
+        if isValidSet(selectedCards) {
+            print("3")
+            for card in selectedCards {
+                if let index = displayCards.firstIndex(where: { $0.id == card.id }) {
+                    displayCards[index].isMatched = true
+                }
+            }
+            
+            displayCards.removeAll(where: { $0.isMatched })
+            
+            addNewCards()
+        } else {
+            print("4")
+            for card in selectedCards {
+                if let index = displayCards.firstIndex(where: { $0.id == card.id }) {
+                    displayCards[index].isSelected = false
+                }
+            }
+        }
+    }
+    
+    private mutating func addNewCards() {
+        while displayCards.count < numberOfDisplayCards && !deck.isEmpty {
+            if let newCard = deck.popLast() {
+                displayCards.append(newCard)
+            }
+        }
+    }
+    
+    private func isValidSet(_ cards: [Card]) -> Bool {
+        guard cards.count == 3 else {
+            return false
+        }
+        
+        let shapeTypes = Set(cards.map { $0.content.shapeType })
+        let fillTypes = Set(cards.map { $0.content.fillType })
+        let colors = Set(cards.map { $0.content.color })
+        
+        return (shapeTypes.count == 1 || shapeTypes.count == 3) &&
+               (fillTypes.count == 1 || fillTypes.count == 3) &&
+               (colors.count == 1 || colors.count == 3)
     }
     
     struct Card: Equatable, Identifiable {
@@ -42,10 +97,9 @@ struct SetModel {
             return lhs.id == rhs.id
         }
         
-        var isFaceUp = false
+        var isSelected = false
         var isMatched = false
         let content: Shape
-        var numberOfShapes: Int
         
         var id: UUID = UUID()
     }
@@ -64,7 +118,7 @@ struct SetModel {
     
     enum FillType: CaseIterable {
         case solid
-        case striped
+        case transparent
         case open
     }
     
