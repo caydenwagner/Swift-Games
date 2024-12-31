@@ -9,12 +9,15 @@ import SwiftUI
 
 struct SetView: View {
     @ObservedObject var viewModel: SetViewModel
-    private let aspectRatio: CGFloat = 6/4
+    private let aspectRatio: CGFloat = 7/4
     
     var body: some View {
         VStack {
             cards
                 .animation(.default, value: viewModel.cards)
+            
+            buttonBar
+                .padding()
         }
         .padding()
     }
@@ -24,12 +27,41 @@ struct SetView: View {
             CardView(card: card)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(card.isSelected ? Color.red : Color.black, lineWidth: card.isSelected ? 4 : 2)
+                        .strokeBorder(card.isSelected ? Color.red : (card.isPartOfMatch ? Color.yellow : Color.black), lineWidth: card.isSelected ? 4 : 2)
                 )
                 .onTapGesture {
                     viewModel.select(card)
                 }
             .padding(5)
+        }
+    }
+    
+    private var buttonBar: some View {
+        HStack {
+            Circle()
+                .fill(viewModel.hasAvailableMatches ? Color.green : Color.gray)
+                .frame(width: 20, height: 20)
+            
+            Button(action: {
+                viewModel.checkForMatches()
+            }) {
+                Text("Highlight Matches")
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+            
+            // Button to Start New Game
+            Button(action: {
+                viewModel.startNewGame()
+            }) {
+                Text("New Game")
+                    .padding()
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
         }
     }
     

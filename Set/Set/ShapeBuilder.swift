@@ -23,7 +23,7 @@ struct ShapeBuilder: View {
             VStack(spacing: 4) {
                 ForEach(0..<numberOfShapes, id: \.self) { _ in
                     shapeView
-                        .frame(width: geometry.size.width * 0.55, height: geometry.size.height * 0.4)
+                        .frame(width: geometry.size.width * 0.45, height: geometry.size.height * 0.4)
                         .padding(2)
                 }
             }
